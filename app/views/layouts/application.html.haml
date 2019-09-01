@@ -9,8 +9,7 @@
 
     %body
       %div.container
-        %div.navbar.navbar-expand-lg.bg-primary.text-white
-          %h1.title Rotten Potatoes!
+        = render 'shared/banner'
         #main
           - if flash[:notice]
             %div.alert.alert-danger

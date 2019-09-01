@@ -1,4 +1,6 @@
 class MoviesController < ApplicationController
+  rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
+
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
   end
@@ -10,7 +12,7 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    @movies = Movie.order_asc
   end
 
   def new
@@ -20,7 +22,7 @@ class MoviesController < ApplicationController
   def create
     @movie = Movie.create!(movie_params)
     flash[:notice] = "#{@movie.title} was successfully created."
-    redirect_to movies_path
+    redirect_to movie_path @movie
   end
 
   def edit
@@ -39,5 +41,11 @@ class MoviesController < ApplicationController
     @movie.destroy
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
+  end
+
+  private 
+  def handle_not_found
+    flash[:notice] = "Unable to find movie with id #{params[:id]}" 
+    redirect_to movies_path 
   end
 end
