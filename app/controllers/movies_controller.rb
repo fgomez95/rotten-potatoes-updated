@@ -15,25 +15,30 @@ class MoviesController < ApplicationController
     @movies = Movie.order_asc
   end
 
-  def new
-    # default: render 'new' template
-  end
-
   def create
-    @movie = Movie.create!(movie_params)
-    flash[:notice] = "#{@movie.title} was successfully created."
-    redirect_to movie_path @movie
+    @movie = Movie.new(movie_params)
+    if @movie.save
+      flash[:notice] = "#{@movie.title} was successfully created."
+      redirect_to movies_path
+    else
+      render "new" # note, 'new' template can access @movie's field values!
+    end
   end
 
-  def edit
-    @movie = Movie.find params[:id]
-  end
-
+  # replaces the 'update' method in controller:
   def update
     @movie = Movie.find params[:id]
-    @movie.update_attributes!(movie_params)
-    flash[:notice] = "#{@movie.title} was successfully updated."
-    redirect_to movie_path(@movie)
+    if @movie.update_attributes(params[:movie])
+      flash[:notice] = "#{@movie.title} was successfully updated."
+      redirect_to movie_path(@movie)
+    else
+      render "edit" # note, 'edit' template can access @movie's field values!
+    end
+  end
+
+  # note, you will also have to update the 'new' method:
+  def new
+    @movie = Movie.new
   end
 
   def destroy
@@ -43,9 +48,10 @@ class MoviesController < ApplicationController
     redirect_to movies_path
   end
 
-  private 
+  private
+
   def handle_not_found
-    flash[:notice] = "Unable to find movie with id #{params[:id]}" 
-    redirect_to movies_path 
+    flash[:notice] = "Unable to find movie with id #{params[:id]}"
+    redirect_to movies_path
   end
 end
